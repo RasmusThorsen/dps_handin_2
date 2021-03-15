@@ -24,7 +24,7 @@ global {
     float predator_view_radius <- 2.0;
 }
 
-species predator parent: animal {
+species predator parent: animal skills: [moving] {
 	rgb color <- #red;
     float max_energy <- predator_max_energy;
     float energy_transfert <- predator_energy_transfert;
@@ -57,9 +57,32 @@ species predator parent: animal {
     	vegetation_cell tmp_cell <- shuffle(my_cell.neighbors2) first_with (!(empty (prey inside each)));
     	if tmp_cell != nil {
     		return tmp_cell;
-    	} else {
-    		// If no preys nearby pick randomly
-    		return one_of (my_cell.neighbors2);
+    	} 
+    	else if !empty(smellable_animals of_species prey) {
+    		// Pick the cell that is closest to the smell of the prey
+    		float shortest_distance <- #infinity;
+    		vegetation_cell new_cell <- nil;
+    		prey hunted_prey <- one_of(smellable_animals of_species prey);
+    		
+    		loop neighbor over: my_cell.neighbors2 {
+    			float current_distance <- neighbor distance_to hunted_prey.location;
+    			if current_distance < shortest_distance {
+    				shortest_distance <- current_distance;
+    				new_cell <- neighbor;
+    			}
+    		}
+    		
+    		return new_cell;
+    	}
+    	else {
+    		// If we cannot smell any prey, then we can hunt in packs instead
+    		predator pack <- one_of(smellable_animals of_species predator);
+    		if pack != nil {
+    			return pack.my_cell;
+    		} else {
+    			// If we cannot smell any other predator we just pick randomly
+    			return one_of(my_cell.neighbors2);
+    		}
     	}
     }
     
