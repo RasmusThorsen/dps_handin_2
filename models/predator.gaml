@@ -20,6 +20,8 @@ global {
     float predator_proba_reproduce <- 0.01;
     int predator_nb_max_offsprings <- 3;
     float predator_energy_reproduce <- 0.5;
+    float predator_smell_radius <- 6.0;
+    float predator_view_radius <- 2.0;
 }
 
 species predator parent: animal {
@@ -31,6 +33,10 @@ species predator parent: animal {
   	int nb_max_offsprings <- predator_nb_max_offsprings ;
   	float energy_reproduce <- predator_energy_reproduce ;
   	image_file my_icon <- image_file("../includes/data/wolf.png") ;
+  	
+  	list<vegetation_cell> visible_vegetation -> vegetation_cell at_distance predator_view_radius;
+  	// Use the of_species operator to get specific species: wolves <- smellable_animals of_species predator
+  	list smellable_animals -> (agents_at_distance(predator_smell_radius)) of_generic_species animal;
   	
     float energy_from_eat {
     	// The list of prey inside my cell
