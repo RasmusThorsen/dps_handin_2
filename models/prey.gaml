@@ -61,5 +61,13 @@ species prey parent: animal {
     vegetation_cell choose_cell {
     	return (my_cell.neighbors2) with_max_of (each.food);
     }
+    
+    bool mate_nearby {
+    	vegetation_cell tmp_cell <- shuffle(my_cell.neighbors) first_with (!(empty(prey inside each)));
+    	if tmp_cell != nil {
+    		return true;
+    	}
+    	return false;
+    }
 
 } 

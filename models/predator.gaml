@@ -56,4 +56,12 @@ species predator parent: animal {
     		return one_of (my_cell.neighbors2);
     	}
     }
+    
+    bool mate_nearby {
+    	vegetation_cell tmp_cell <- shuffle(my_cell.neighbors) first_with (!(empty(predator inside each)));
+    	if tmp_cell != nil {
+    		return true;
+    	}
+    	return false;
+    }
 }

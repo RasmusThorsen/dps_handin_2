@@ -46,7 +46,7 @@ species animal {
     }
     
     // If we have energy for it, and if we 'flip' true - flip is a function that returns a bool based on the proba.
-    reflex reproduce when: (energy >= energy_reproduce) and (flip(proba_reproduce)) {
+    reflex reproduce when: (energy >= energy_reproduce) and (flip(proba_reproduce)) and (mate_nearby()) {
     	// random between 1 and max_offsprings
     	int nb_offsprings <- rnd(1, nb_max_offsprings);
     	
@@ -75,6 +75,9 @@ species animal {
     	return nil;
     }
 
+    bool mate_nearby {
+    	return false;
+    }
     
     aspect base {
     	draw circle(size) color: color ;
