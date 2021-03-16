@@ -59,7 +59,8 @@ species prey parent: animal {
     // For binary operators each element can be accesed with the pseudo-operator: each.
     // In this case each refers to a cell
     vegetation_cell choose_cell {
-    	return (my_cell.neighbors2) with_max_of (each.food);
+    	vegetation_cell best_neighbor <- (my_cell.neighbors1) with_max_of (each.food);
+    	return best_neighbor.food > my_cell.food ? best_neighbor : my_cell;
     }
 
 } 
