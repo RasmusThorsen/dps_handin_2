@@ -10,16 +10,18 @@ model prey
 
 import "vegetation_cell.gaml"
 import "animal.gaml"
+import "predator.gaml"
 /* Insert your model definition here */
 
 global {
 	int nb_preys_init <- 200;
     float prey_max_energy <- 1.0;
 	float prey_max_transfert <- 0.1;
-	float prey_energy_consum <- 0.05;
+	float prey_energy_consum <- 0.1;
     float prey_proba_reproduce <- 0.01;
     int prey_nb_max_offsprings <- 5; 
-    float prey_energy_reproduce <- 0.5; 
+    float prey_energy_reproduce <- 0.5;
+    float prey_viewable_radius <- 3.0; 
 }
 
 species prey parent: animal {
@@ -30,17 +32,10 @@ species prey parent: animal {
     float proba_reproduce <- prey_proba_reproduce;
   	int nb_max_offsprings <- prey_nb_max_offsprings;
   	float energy_reproduce <- prey_energy_reproduce;
-    image_file my_icon <- image_file("../includes/data/sheep.png");
-    
-//	old eat
-//    reflex eat when: my_cell.food > 0 {
-//    	// We can only eat the value of max, even though there is more food in the cell.
-//    	float energy_transfer <- min([max_transfer, my_cell.food]);
-//    	// Deduct the transfered energy from the cell...
-//    	my_cell.food <- my_cell.food - energy_transfer;
-//    	/// ... and add to the preys energy
-//    	energy <- energy + energy_transfer;
-//    }
+  	bool moving <- false;
+    image_file sheep_icon <- image_file("../includes/data/sheep.png"); 
+    image_file fear_icon <- image_file("../includes/data/poop.png");
+    image_file my_icon <- sheep_icon;
     
     // Overwrite the eat-action (actions is like functions)
     float energy_from_eat {
@@ -59,8 +54,28 @@ species prey parent: animal {
     // For binary operators each element can be accesed with the pseudo-operator: each.
     // In this case each refers to a cell
     vegetation_cell choose_cell {
-    	vegetation_cell best_neighbor <- (my_cell.neighbors1) with_max_of (each.food);
-    	return best_neighbor.food > my_cell.food ? best_neighbor : my_cell;
+    	list<vegetation_cell> predator_nearby <- my_cell.neighbors where (!(empty (predator inside each)));
+    	
+    	if (empty(predator_nearby)) {
+    		my_icon <- sheep_icon;
+    		vegetation_cell best_neighbor <- (my_cell.neighbors) with_max_of (each.food);
+    		vegetation_cell chosen_cell <- best_neighbor.food > my_cell.food ? best_neighbor : my_cell;
+    		if(chosen_cell = my_cell) {
+    			energy_consum <- 0.1;
+    		} else {
+    			energy_consum <- 0.2;
+    		}
+    		return chosen_cell;
+    	} else {
+    		my_icon <- fear_icon;
+    		list<vegetation_cell> predator_cells <- my_cell.neighbors3 where (!(empty (predator inside each)));    		
+    		list<vegetation_cell> neighbors3 <- my_cell.neighbors3;
+    		list<vegetation_cell> available_cells <- neighbors3 - predator_cells - [my_cell];
+    		
+    		// return available_cells with_max_of (each.food);
+    		return one_of(available_cells);
+    		// return nil;
+    	}
     }
     
     bool mate_nearby {

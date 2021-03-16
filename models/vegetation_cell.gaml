@@ -24,5 +24,5 @@ grid vegetation_cell width: 50 height: 50 neighbors: 4 {
     // Contains a list of other vegationcells within a range of 2
     // the 'neighbors' attribute is built-in to grids.
     list<vegetation_cell> neighbors2 <- self neighbors_at 2;
-    list<vegetation_cell> neighbors1 <- self neighbors_at 1;
+    list<vegetation_cell> neighbors3 <- self neighbors_at 3;
 }
