@@ -25,7 +25,7 @@ species animal {
     // The name of a species returns the entire list - one_of picks one.
 	vegetation_cell my_cell <- one_of (vegetation_cell);
 	// randomized initialized. At each sim step the energy decreases.
-	float energy <- rnd(max_energy) update: energy - energy_consum max: max_energy;
+	float energy <- rnd(max_energy)  max: max_energy;
 	// set the location to the randomly chosen cell.
 	init {
 		location <- my_cell.location;
@@ -33,12 +33,14 @@ species animal {
 	
 	// Reflexes is a block of statements that will be executed if the condition is true.
     // The when-facet is optional - no when = contionusly execution of the reflex.
-	reflex basic_move {
+	reflex move {
 		// I am moving to my current cells neighbor. Initial version (random chosen):
 		// my_cell <- one_of(my_cell.neighbors2);
 		// How a agent chooses a cell is implemented in the derived species.
+		vegetation_cell old_cell <- my_cell;
 		my_cell <- choose_cell();
 		location <- my_cell.location;
+		do update_energy(old_cell, my_cell);
 	}
 	
  	reflex eat {
@@ -73,6 +75,10 @@ species animal {
     
     vegetation_cell choose_cell {
     	return nil;
+    }
+    
+    action update_energy (vegetation_cell old_cell, vegetation_cell new_cell) {
+    	// abstract method
     }
 
     bool mate_nearby {

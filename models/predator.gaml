@@ -16,7 +16,8 @@ global {
 	int nb_predators_init <- 20;
     float predator_max_energy <- 1.0;
     float predator_energy_transfert <- 0.5;
-    float predator_energy_consum <- 0.02;
+    float predator_energy_consum <- 0.2;
+    float predator_energy_consum_sprint <- 0.25;
     float predator_proba_reproduce <- 0.01;
     int predator_nb_max_offsprings <- 3;
     float predator_energy_reproduce <- 0.5;
@@ -28,7 +29,6 @@ species predator parent: animal skills: [moving] {
 	rgb color <- #red;
     float max_energy <- predator_max_energy;
     float energy_transfert <- predator_energy_transfert;
-    float energy_consum <- predator_energy_consum;
     float proba_reproduce <- predator_proba_reproduce ;
   	int nb_max_offsprings <- predator_nb_max_offsprings ;
   	float energy_reproduce <- predator_energy_reproduce ;
@@ -53,11 +53,16 @@ species predator parent: animal skills: [moving] {
     }
     
     vegetation_cell choose_cell { 
-    	// Shuffle neighbor cells, and find one with a prey inside it.
-    	vegetation_cell tmp_cell <- shuffle(my_cell.neighbors2) first_with (!(empty (prey inside each)));
+    	// Try to find a prey within one field
+    	vegetation_cell tmp_cell <- shuffle(my_cell.neighbors) first_with (!(empty (prey inside each)));
     	if tmp_cell != nil {
     		return tmp_cell;
-    	} 
+    	}
+    	// Try to find a prey within two fields
+    	tmp_cell <- shuffle(my_cell.neighbors2) first_with (!(empty (prey inside each)));
+    	if tmp_cell != nil {
+    		return tmp_cell;
+    	}
     	else if !empty(smellable_animals of_species prey) {
     		// Pick the cell that is closest to the smell of the prey
     		float shortest_distance <- #infinity;
@@ -84,6 +89,16 @@ species predator parent: animal skills: [moving] {
     			return one_of(my_cell.neighbors2);
     		}
     	}
+    }
+    
+    action update_energy (vegetation_cell old_cell, vegetation_cell new_cell) {
+    	float dist <- old_cell.location distance_to new_cell.location;
+		if (dist < 3.0) {
+			energy <- energy - predator_energy_consum;
+		}
+		else{
+			energy <- energy - predator_energy_consum_sprint;
+		}
     }
     
     bool mate_nearby {
