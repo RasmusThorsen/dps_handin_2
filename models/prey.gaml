@@ -18,11 +18,10 @@ global {
 	float prey_max_transfer <- 0.1; // Maximum energy that can a prey agent can consume from vegetation per step
 	float prey_energy_consum_grazing <- 0.01;  // Energy used at each step by a prey agent when grazing
 	float prey_energy_consum_wandering <- 0.02; // Energy used at each step by a prey agent when wandering
-	//TODO: add energy consumption for fleeing?
 	float prey_proba_reproduce <- 0.01; // Reproduction probability for prey agents
     int prey_nb_max_offsprings <- 5; // Maximum number of offspring for prey agents
     float prey_energy_reproduce <- 0.5; // Minimum energy required to reproduce for prey agents
-    float prey_viewable_radius <- 3.0; // TODO: can sheep see 3 fields away?
+    float prey_viewable_radius <- 3.0; // Radius in which the preys can see other animals
 }
 
 species prey parent: animal {
@@ -32,51 +31,54 @@ species prey parent: animal {
     float proba_reproduce <- prey_proba_reproduce;
   	int nb_max_offsprings <- prey_nb_max_offsprings;
   	float energy_reproduce <- prey_energy_reproduce;
-  	bool moving <- false; //TODO: why is this needed?
     image_file sheep_icon <- image_file("../includes/data/sheep.png");
     image_file fear_icon <- image_file("../includes/data/poop.png");
-    image_file my_icon <- sheep_icon; 
+    image_file my_icon <- sheep_icon;
 
+	// Action used to calculate the energy gained from eating grass
     float energy_from_eat {
-	    float energy_transfert <- 0.0;
+	    float energy_transfer <- 0.0;
 	    if(my_cell.food > 0) {
-	        energy_transfert <- min([max_transfer, my_cell.food]);
-	        my_cell.food <- my_cell.food - energy_transfert;
+	        energy_transfer <- min([max_transfer, my_cell.food]);
+	        my_cell.food <- my_cell.food - energy_transfer;
 	    }
-	    return energy_transfert;
+	    return energy_transfer;
     }
 
+	// Action used to choose a new cell to which a prey should move
     vegetation_cell choose_cell {
     	list<vegetation_cell> predator_nearby <- my_cell.neighbors where (!(empty (predator inside each)));
 
     	if (empty(predator_nearby)) {
-    		// normal wandering
+    		// If there are no predators within one field, the prey grazes on
+    		// the grass in the current field or wanders to a field with more grass
     		my_icon <- sheep_icon;
     		vegetation_cell best_neighbor <- (my_cell.neighbors) with_max_of (each.food);
     		vegetation_cell chosen_cell <- best_neighbor.food > my_cell.food ? best_neighbor : my_cell;
     		return chosen_cell;
     	} else {
-    		// fleet
+    		// If there are predators within one field, the prey flees
     		my_icon <- fear_icon;
     		list<vegetation_cell> neighbors3 <- my_cell.my_neighbors(3.0);
     		list<vegetation_cell> predator_cells <- neighbors3 where (!(empty (predator inside each)));
     		list<vegetation_cell> available_cells <- neighbors3 - predator_cells - [my_cell];
-
     		return one_of(available_cells);
     	}
     }
 
+	// Action used to update the energy of a prey with the energy consumed after moving
     action update_energy (vegetation_cell old_cell, vegetation_cell new_cell) {
 		if new_cell = old_cell {
-			// write 'Sheep did not move.';
+			write name + ' did not move.';
 			energy <- energy - prey_energy_consum_grazing;
 			return;
 		}
-		// sheep wanders or flees depending on the dist
 		float dist <- new_cell.dist(old_cell);
-		energy <- energy - prey_energy_consum_wandering * dist;
+		write name + ' moved ' + dist + ' fields.';
+		energy <- energy - (prey_energy_consum_wandering * dist);
     }
 
+	// Action used to determine if there is a mate for the prey within one field
     bool mate_nearby {
     	vegetation_cell tmp_cell <- shuffle(my_cell.neighbors) first_with (!(empty(prey inside each)));
     	if tmp_cell != nil {

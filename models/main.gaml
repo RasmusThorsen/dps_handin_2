@@ -47,7 +47,7 @@ experiment prey_predator type: gui {
 
     output {
     	display main_display {
-    		grid vegetation_cell lines: #black; // show the grid lines
+    		grid vegetation_cell lines: #black;
         	species prey aspect: icon ;
         	species predator aspect: icon;
  		}
