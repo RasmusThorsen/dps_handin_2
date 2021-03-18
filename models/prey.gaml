@@ -8,7 +8,6 @@
 */
 
 model prey
-//TODO: check for correct values
 import "vegetation_cell.gaml"
 import "animal.gaml"
 import "predator.gaml"
