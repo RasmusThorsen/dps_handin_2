@@ -1,58 +1,52 @@
 /**
 * Name: prey
-* Based on the internal empty template.
-* Author: ralle
-* Tags:
+* Authors:
+* Alexander Mølsted Hulgaard Rasmussen - 201607814
+* Deyana Atanasova - 202001352
+* Jakob Dybdahl Andersen - 201607803
+* Rasmus Østergaard Thorsen - 201608891
 */
 
-
 model prey
-
+//TODO: check for correct values
 import "vegetation_cell.gaml"
 import "animal.gaml"
 import "predator.gaml"
-/* Insert your model definition here */
 
 global {
-	int nb_preys_init <- 200;
-    float prey_max_energy <- 1.0;
-	float prey_max_transfert <- 0.1;
-	float prey_energy_consum_grazing <- 0.1;
-	float prey_energy_consum_wandering <- 0.2; //TODO: add energy consumption for fleeing?
-	float prey_proba_reproduce <- 0.01;
-    int prey_nb_max_offsprings <- 5;
-    float prey_energy_reproduce <- 0.5;
-    float prey_viewable_radius <- 3.0;
+	int nb_preys_init <- 200; // Initial number of prey agents
+    float prey_max_energy <- 1.0; // Maximum energy of prey agents
+	float prey_max_transfer <- 0.1; // Maximum energy that can a prey agent can consume from vegetation per step
+	float prey_energy_consum_grazing <- 0.1;  // Energy used at each step by a prey agent when grazing
+	float prey_energy_consum_wandering <- 0.2; // Energy used at each step by a prey agent when wandering
+	//TODO: add energy consumption for fleeing?
+	float prey_proba_reproduce <- 0.01; // Reproduction probability for prey agents
+    int prey_nb_max_offsprings <- 5; // Maximum number of offspring for prey agents
+    float prey_energy_reproduce <- 0.5; // Minimum energy required to reproduce for prey agents
+    float prey_viewable_radius <- 3.0; // TODO: can sheep see 3 fields away?
 }
 
 species prey parent: animal {
     rgb color <- #blue;
     float max_energy <- prey_max_energy;
-    float max_transfert <- prey_max_transfert;
+    float max_transfer <- prey_max_transfer;
     float proba_reproduce <- prey_proba_reproduce;
   	int nb_max_offsprings <- prey_nb_max_offsprings;
   	float energy_reproduce <- prey_energy_reproduce;
-  	bool moving <- false;
+  	bool moving <- false; //TODO: why is this needed?
     image_file sheep_icon <- image_file("../includes/data/sheep.png");
     image_file fear_icon <- image_file("../includes/data/poop.png");
     image_file my_icon <- sheep_icon;
 
-    // Overwrite the eat-action (actions is like functions)
     float energy_from_eat {
 	    float energy_transfert <- 0.0;
 	    if(my_cell.food > 0) {
-	    	// We can only eat the value of max, even though there is more food in the cell.
-	        energy_transfert <- min([max_transfert, my_cell.food]);
-
-	        // Deduct the transfered energy from the cell...
+	        energy_transfert <- min([max_transfer, my_cell.food]);
 	        my_cell.food <- my_cell.food - energy_transfert;
 	    }
 	    return energy_transfert;
     }
 
-    // GAMA has alot of different operators on list, both binary (where, first_with, ...) and unary (min, max, sum, ...)
-    // For binary operators each element can be accesed with the pseudo-operator: each.
-    // In this case each refers to a cell
     vegetation_cell choose_cell {
     	list<vegetation_cell> predator_nearby <- my_cell.neighbors where (!(empty (predator inside each)));
 
@@ -67,7 +61,7 @@ species prey parent: animal {
     		list<vegetation_cell> neighbors3 <- my_cell.neighbors3;
     		list<vegetation_cell> available_cells <- neighbors3 - predator_cells - [my_cell];
 
-    		// return available_cells with_max_of (each.food);
+    		// return available_cells with_max_of (each.food); //TODO: remove these comments?
     		return one_of(available_cells);
     		// return nil;
     	}

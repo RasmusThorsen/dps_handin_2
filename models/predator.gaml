@@ -1,53 +1,49 @@
 /**
 * Name: predator
-* Based on the internal empty template. 
-* Author: ralle
-* Tags: 
+* Authors:
+* Alexander Mølsted Hulgaard Rasmussen - 201607814
+* Deyana Atanasova - 202001352
+* Jakob Dybdahl Andersen - 201607803
+* Rasmus Østergaard Thorsen - 201608891
 */
-
 
 model predator
 
 import "prey.gaml"
 import "animal.gaml"
-/* Insert your model definition here */
 
 global {
-	int nb_predators_init <- 20;
-    float predator_max_energy <- 1.0;
-    float predator_energy_transfert <- 0.5;
-    float predator_energy_consum <- 0.2;
-    float predator_energy_consum_sprint <- 0.25;
-    float predator_proba_reproduce <- 0.01;
-    int predator_nb_max_offsprings <- 3;
-    float predator_energy_reproduce <- 0.5;
-    float predator_smell_radius <- 6.0;
-    float predator_view_radius <- 2.0;
+	int nb_predators_init <- 20; // Initial number of predator agents
+    float predator_max_energy <- 1.0; // Maximum energy of predator agents
+    float predator_energy_transfer <- 0.5; // Maximum energy that can a predator agent can consume from preys per step
+    float predator_energy_consum <- 0.2; // Energy used at each step by a prey agent when moving normally
+    float predator_energy_consum_sprint <- 0.25; // Energy used at each step by a prey agent when sprinting
+    float predator_proba_reproduce <- 0.01; // Reproduction probability for predator agents
+    int predator_nb_max_offsprings <- 3; // Maximum number of offspring for predator agents
+    float predator_energy_reproduce <- 0.5; // Minimum energy required to reproduce for predator agents
+    float predator_smell_radius <- 6.0; // Radius in which the predator can smell preys
+    float predator_view_radius <- 2.0; // Radius in which the predator can see preys
 }
 
 species predator parent: animal skills: [moving] {
 	rgb color <- #red;
     float max_energy <- predator_max_energy;
-    float energy_transfert <- predator_energy_transfert;
+    float energy_transfer <- predator_energy_transfer;
     float proba_reproduce <- predator_proba_reproduce ;
   	int nb_max_offsprings <- predator_nb_max_offsprings ;
   	float energy_reproduce <- predator_energy_reproduce ;
   	image_file my_icon <- image_file("../includes/data/wolf.png") ;
   	
   	list<vegetation_cell> visible_vegetation -> vegetation_cell at_distance predator_view_radius;
-  	// Use the of_species operator to get specific species: wolves <- smellable_animals of_species predator
   	list smellable_animals -> (agents_at_distance(predator_smell_radius)) of_generic_species animal;
   	
     float energy_from_eat {
-    	// The list of prey inside my cell
 	    list<prey> reachable_preys <- prey inside (my_cell);    
-	    // If there is prey...
 	    if(!empty(reachable_preys)) {
-	    	// Ask one prey to call its die-action.
 	        ask one_of (reachable_preys) {
 	        	do die;
 	        }
-	        return energy_transfert;
+	        return energy_transfer;
 	    }
 	    return 0.0;
     }

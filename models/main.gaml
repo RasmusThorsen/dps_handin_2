@@ -1,16 +1,16 @@
 /**
-* Name: Main
-* Based on the internal empty template. 
-* Author: ralle
-* Tags: 
+* Name: animal
+* Authors:
+* Alexander Mølsted Hulgaard Rasmussen - 201607814
+* Deyana Atanasova - 202001352
+* Jakob Dybdahl Andersen - 201607803
+* Rasmus Østergaard Thorsen - 201608891
 */
-
 
 model main
 
 import "prey.gaml"
 import "predator.gaml"
-/* Insert your model definition here */
 
 global {
 	int nb_preys ->{length (prey)};
@@ -21,7 +21,6 @@ global {
         create predator number: nb_predators_init;
     }
     
-    // Stopping criteria
     reflex stop_simulation when: (nb_preys = 0) or (nb_predators = 0) {
         do pause ;
     }
@@ -30,7 +29,7 @@ global {
 experiment prey_predator type: gui {
     parameter "Initial number of preys: " var: nb_preys_init min: 1 max: 1000 category: "Prey";
     parameter "Prey max energy: " var: prey_max_energy category: "Prey";
-	parameter "Prey max transfer: " var: prey_max_transfert  category: "Prey";
+	parameter "Prey max transfer: " var: prey_max_transfer  category: "Prey";
 	parameter "Prey energy consumption when grazing: " var: prey_energy_consum_grazing  category: "Prey";
 	parameter "Prey energy consumption when wandering: " var: prey_energy_consum_wandering  category: "Prey";
 	parameter "Prey probability reproduce: " var: prey_proba_reproduce category: "Prey" ;
@@ -39,7 +38,7 @@ experiment prey_predator type: gui {
     
     parameter "Initial number of predators: " var: nb_predators_init min:0 max: 200 category: "Predator";
     parameter "Predator max energy: " var: predator_max_energy category: "Predator";
-	parameter "Predator energy transfer: " var: predator_energy_transfert  category: "Predator";
+	parameter "Predator energy transfer: " var: predator_energy_transfer  category: "Predator";
 	parameter "Predator energy consumption when moving: " var: predator_energy_consum  category: "Predator";
 	parameter "Predator energy consumption when sprinting: " var: predator_energy_consum_sprint  category: "Predator";
 	parameter "Predator probability reproduce: " var: predator_proba_reproduce category: "Predator" ;
@@ -79,8 +78,6 @@ experiment prey_predator type: gui {
 		    }
 		}
 		        
- 		// A monitor can be used to follow a variable
- 		// monitor monitor_name value: an_expression refresh: every(nb_steps);
  		monitor "Number of preys" value: nb_preys;
  		monitor "Number of predators" value: nb_predators;
     }
