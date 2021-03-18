@@ -68,10 +68,12 @@ species prey parent: animal {
     }
 
     action update_energy (vegetation_cell old_cell, vegetation_cell new_cell) {
-		if old_cell = new_cell {
+		if new_cell = old_cell {
+			write 'Sheep did not move.';
 			energy <- energy - prey_energy_consum_grazing;
 		}
 		else{
+			write 'Sheep moved.';
 			energy <- energy - prey_energy_consum_wandering;
 		}
     }

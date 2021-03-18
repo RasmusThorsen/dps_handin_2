@@ -43,8 +43,10 @@ species predator parent: animal skills: [moving] {
 	        ask one_of (reachable_preys) {
 	        	do die;
 	        }
+	        write name + ' caught a prey.';
 	        return energy_transfer;
 	    }
+	    write name + ' didn\'t catch a prey.';
 	    return 0.0;
     }
     
@@ -90,9 +92,11 @@ species predator parent: animal skills: [moving] {
     action update_energy (vegetation_cell old_cell, vegetation_cell new_cell) {
     	float dist <- old_cell.location distance_to new_cell.location;
 		if (dist < 3.0) {
+			write 'Wolf moved normally.';
 			energy <- energy - predator_energy_consum;
 		}
 		else{
+			write 'Wolf sprinted.';
 			energy <- energy - predator_energy_consum_sprint;
 		}
     }

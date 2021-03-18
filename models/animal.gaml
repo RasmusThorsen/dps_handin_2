@@ -32,11 +32,19 @@ species animal {
 		vegetation_cell old_cell <- my_cell;
 		my_cell <- choose_cell();
 		location <- my_cell.location;
+		write name + " energy before move: " + energy;
 		do update_energy(old_cell, my_cell);
+		write name + " energy after move: " + energy;
 	}
+	
+	reflex die when: energy <= 0 {
+    	write name + ' died.';
+    	do die;
+    }
 	
  	reflex eat {
     	energy <- energy + energy_from_eat();
+    	write name + ' energy after eat: ' + energy;
     }
     
     reflex reproduce when: (energy >= energy_reproduce) and (flip(proba_reproduce)) and (mate_nearby()) {
@@ -48,10 +56,7 @@ species animal {
     		energy <- myself.energy / nb_offsprings;	
     	}
     	energy <- energy / nb_offsprings;
-    }
-	
-    reflex die when: energy <= 0 {
-    	do die;
+    	write name + ' reproduced.';
     }
 
     float energy_from_eat {
